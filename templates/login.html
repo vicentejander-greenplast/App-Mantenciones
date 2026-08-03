@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Greenplast — Acceso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1B5E20 0%, #388E3C 60%, #66BB6A 100%);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%; max-width: 380px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.25);
+      text-align: center;
+    }
+
+    .logo-area {
+      margin-bottom: 28px;
+    }
+    .logo-area img {
+      height: 44px; width: auto;
+    }
+    .logo-fallback {
+      font-size: 26px; font-weight: 800;
+      color: #1B5E20; letter-spacing: -1px;
+    }
+
+    h1 {
+      font-size: 18px; font-weight: 700;
+      color: #1A2E1A; margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 13px; color: #607D8B; margin-bottom: 32px;
+    }
+
+    label {
+      display: block; text-align: left;
+      font-size: 12px; font-weight: 600;
+      color: #388E3C; text-transform: uppercase;
+      letter-spacing: .4px; margin-bottom: 6px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #C8E6C9;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+      background: #F9FBE7;
+      transition: border-color .2s;
+      margin-bottom: 20px;
+    }
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #66BB6A;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(102,187,106,.2);
+    }
+
+    .error-msg {
+      background: #FFEBEE; color: #C62828;
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 13px; margin-bottom: 16px;
+      border: 1px solid #FFCDD2;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #2E7D32, #66BB6A);
+      color: #fff;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(56,142,60,.4);
+    }
+
+    .footer {
+      margin-top: 24px;
+      font-size: 12px; color: #B0BEC5;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo-area">
+      <img src="/logo" alt="Greenplast"
+           onerror="this.style.display='none'; document.getElementById('logo-fb').style.display='block'">
+      <div id="logo-fb" class="logo-fallback" style="display:none">♻️ GREENPLAST</div>
+    </div>
+
+    <h1>Registro de Mantenciones</h1>
+    <p class="subtitle">Ingresa la contraseña del equipo para continuar</p>
+
+    {% if error %}
+    <div class="error-msg">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <label for="password">🔒 Contraseña</label>
+      <input type="password" id="password" name="password"
+             placeholder="••••••••••••" autofocus required>
+      <button type="submit">Ingresar</button>
+    </form>
+
+    <div class="footer">Planta de Reciclaje HDPE y PP — Greenplast</div>
+  </div>
+</body>
+</html>
