@@ -1,0 +1,87 @@
+================================================================
+  GREENPLAST — App de Mantenciones
+  INSTRUCCIONES DE USO Y CONFIGURACIÓN
+================================================================
+
+REQUISITOS
+----------
+- Python 3.8 o superior instalado
+  Descarga: https://www.python.org/downloads/
+  ⚠️  Marca "Add Python to PATH" durante la instalación
+
+- Acceso a la carpeta compartida G:\
+
+================================================================
+INSTALACIÓN (solo la primera vez)
+================================================================
+
+1. Abre la carpeta App_Mantenciones
+2. Haz doble clic en "instalar.bat"
+3. Espera que termine (verás "Instalacion completada")
+
+================================================================
+USO DIARIO
+================================================================
+
+1. Haz doble clic en "iniciar.bat"
+2. Se abrirá automáticamente el navegador en http://localhost:5001
+3. Llena el formulario y presiona "Registrar Mantención"
+
+La planilla Excel se actualiza automáticamente en:
+  ..\Planilla_Maestro_Mantenciones.xlsx
+
+================================================================
+CONFIGURAR GOOGLE CALENDAR (opcional pero recomendado)
+================================================================
+
+Para que las mantenciones se agenden también en Google Calendar,
+sigue estos pasos:
+
+PASO 1: Crear proyecto en Google Cloud
+  1. Ve a https://console.cloud.google.com/
+  2. Crea un proyecto nuevo o usa uno existente
+  3. En el menú lateral → "APIs y servicios" → "Biblioteca"
+  4. Busca "Google Calendar API" y haz clic en "Habilitar"
+
+PASO 2: Crear credenciales OAuth
+  1. En "APIs y servicios" → "Credenciales"
+  2. Clic en "Crear credenciales" → "ID de cliente OAuth"
+  3. Tipo de aplicación: "Aplicación de escritorio"
+  4. Nombre: "Greenplast Mantenciones"
+  5. Clic en "Crear"
+  6. Descarga el archivo JSON y nómbralo "credentials.json"
+  7. Colócalo en la carpeta: App_Mantenciones\credentials\
+
+PASO 3: Autorizar la app (solo una vez)
+  1. Inicia la app con "iniciar.bat"
+  2. La primera vez se abrirá una ventana de Google para autorizar
+  3. Inicia sesión con la cuenta de Greenplast y acepta
+  4. Listo — el token se guarda automáticamente
+
+PASO 4 (opcional): Usar un calendario compartido específico
+  1. Abre Google Calendar en tu navegador
+  2. A la izquierda, busca el calendario del equipo
+  3. Haz clic en los tres puntos → "Configuración y uso compartido"
+  4. Copia el "ID del calendario" (algo como: abc123@group.calendar.google.com)
+  5. Abre config.py y reemplaza CALENDAR_ID = "primary" con ese ID
+
+================================================================
+PERSONALIZACIÓN
+================================================================
+
+Para agregar/quitar máquinas o técnicos, edita el archivo:
+  App_Mantenciones\config.py
+
+Las secciones son:
+  MACHINES      → lista de máquinas de la planta
+  TECHNICIANS   → lista de técnicos (para el autocompletado)
+  COMMON_REASONS → motivos frecuentes de mantención
+
+================================================================
+SOPORTE
+================================================================
+
+Desarrollado con Claude (Anthropic) para Greenplast.
+Cualquier duda o error, contactar al área de sistemas.
+
+================================================================
