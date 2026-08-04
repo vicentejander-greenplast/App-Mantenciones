@@ -180,6 +180,14 @@ def api_historial():
     return jsonify(get_recent(50))
 
 
+# ── TODOS LOS REGISTROS (para sincronizar Excel local) ────────
+@app.route("/api/todos")
+def api_todos():
+    if request.args.get("secret") != API_SECRET:
+        return jsonify({"error": "No autorizado"}), 401
+    return jsonify(get_all_for_export())
+
+
 # ── MAIN ──────────────────────────────────────────────────────
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", APP_PORT))
