@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greenplast — App de Mantenciones</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================================
+       GREENPLAST — Design System
+    ============================================================ */
+    :root {
+      --gp-dark:    #1B5E20;
+      --gp-medium:  #2E7D32;
+      --gp-primary: #388E3C;
+      --gp-light:   #66BB6A;
+      --gp-pale:    #C8E6C9;
+      --gp-ghost:   #E8F5E9;
+      --gp-white:   #FFFFFF;
+      --gp-gray:    #F5F5F5;
+      --gp-text:    #1A2E1A;
+      --gp-muted:   #607D8B;
+      --gp-warn:    #E65100;
+      --gp-warn-bg: #FFF3E0;
+      --gp-radius:  12px;
+      --gp-shadow:  0 4px 20px rgba(27,94,32,.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--gp-ghost);
+      color: var(--gp-text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    .gp-header {
+      background: linear-gradient(135deg, var(--gp-dark) 0%, var(--gp-primary) 100%);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,.25);
+    }
+
+    .gp-header-inner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 32px;
+    }
+
+    .gp-logo-img {
+      height: 38px;
+      width: auto;
+      flex-shrink: 0;
+      /* El logo ya es verde sobre transparente; le ponemos un halo suave */
+      filter: brightness(0) invert(1);
+    }
+
+    .gp-header-title {
+      display: none; /* El logo ya incluye el texto GREENPLAST */
+    }
+    .gp-header-sub {
+      color: var(--gp-pale);
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 0;
+    }
+
+    .gp-header-badge {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .badge-cal {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .badge-cal.ok  { background: rgba(255,255,255,.2); color:#fff; border: 1px solid rgba(255,255,255,.3); }
+    .badge-cal.err { background: rgba(230,81,0,.35);   color:#FFE0B2; border:1px solid rgba(230,81,0,.5); }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────────── */
+    .gp-main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .gp-main { grid-template-columns: 1fr; }
+    }
+
+    /* ── CARDS ───────────────────────────────────────────────── */
+    .gp-card {
+      background: var(--gp-white);
+      border-radius: var(--gp-radius);
+      box-shadow: var(--gp-shadow);
+      overflow: hidden;
+    }
+
+    .gp-card-header {
+      background: linear-gradient(90deg, var(--gp-medium) 0%, var(--gp-primary) 100%);
+      color: #fff;
+      padding: 16px 24px;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .gp-card-header i { font-size: 18px; opacity: .85; }
+
+    .gp-card-body { padding: 28px 24px; }
+
+    /* ── FORM ELEMENTS ───────────────────────────────────────── */
+    .form-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--gp-medium);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 6px;
+    }
+
+    .form-control, .form-select {
+      border: 2px solid var(--gp-pale);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 15px;
+      transition: border-color .2s, box-shadow .2s;
+      background: var(--gp-gray);
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--gp-light);
+      box-shadow: 0 0 0 3px rgba(102,187,106,.2);
+      background: #fff;
+      outline: none;
+    }
+
+    .form-control::placeholder { color: #b0bec5; }
+
+    /* Tipo de mantención — botones de radio */
+    .tipo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .tipo-option {
+      position: relative;
+    }
+    .tipo-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+    }
+    .tipo-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 14px 8px;
+      border: 2px solid var(--gp-pale);
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gp-muted);
+      background: var(--gp-gray);
+      transition: all .2s;
+    }
+    .tipo-label i { font-size: 22px; }
+    .tipo-option input:checked + .tipo-label {
+      border-color: var(--gp-primary);
+      background: var(--gp-ghost);
+      color: var(--gp-dark);
+      box-shadow: 0 0 0 3px rgba(56,142,60,.15);
+    }
+    .tipo-option.warn input:checked + .tipo-label {
+      border-color: var(--gp-warn);
+      background: var(--gp-warn-bg);
+      color: var(--gp-warn);
+      box-shadow: 0 0 0 3px rgba(230,81,0,.15);
+    }
+
+    /* Motivos rápidos */
+    .motivos-quick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .motivo-chip {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--gp-pale);
+      background: #fff;
+      font-size: 12px;
+      color: var(--gp-medium);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .motivo-chip:hover {
+      background: var(--gp-pale);
+      border-color: var(--gp-light);
+      color: var(--gp-dark);
+    }
+
+    /* Duración */
+    .duracion-group {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .duracion-group input { width: 110px; }
+    .duracion-btns { display: flex; gap: 6px; }
+    .duracion-btn {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 2px solid var(--gp-pale);
+      background: var(--gp-gray);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gp-medium);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .duracion-btn:hover {
+      background: var(--gp-pale);
+      border-color: var(--gp-light);
+    }
+
+    /* ── SUBMIT BUTTON ───────────────────────────────────────── */
+    .btn-agendar {
+      width: 100%;
+      padding: 16px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--gp-medium) 0%, var(--gp-light) 100%);
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-agendar:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(56,142,60,.4);
+    }
+    .btn-agendar:active { transform: translateY(0); }
+    .btn-agendar:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ── TOAST ───────────────────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      top: 20px; right: 20px;
+      z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .gp-toast {
+      min-width: 300px; max-width: 420px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      display: flex; align-items: flex-start; gap: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      animation: slideIn .3s ease;
+    }
+    .gp-toast.success { background: var(--gp-dark); color: #fff; }
+    .gp-toast.error   { background: #B71C1C; color: #fff; }
+    .gp-toast-icon { font-size: 22px; flex-shrink: 0; }
+    .gp-toast-text { flex: 1; }
+    .gp-toast-title { font-weight: 700; font-size: 14px; }
+    .gp-toast-msg   { font-size: 13px; opacity: .85; margin-top: 3px; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── HISTORIAL ───────────────────────────────────────────── */
+    .historial-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .historial-table th {
+      background: var(--gp-ghost);
+      color: var(--gp-medium);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--gp-pale);
+      white-space: nowrap;
+    }
+    .historial-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #F0F0F0;
+      vertical-align: middle;
+    }
+    .historial-table tr:last-child td { border-bottom: none; }
+    .historial-table tr:hover td { background: var(--gp-ghost); }
+
+    .badge-tipo {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-programada  { background: var(--gp-ghost); color: var(--gp-dark); border: 1px solid var(--gp-pale); }
+    .badge-noprogramada { background: var(--gp-warn-bg); color: var(--gp-warn); border: 1px solid #FFCC80; }
+
+    .maquina-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-weight: 600; color: var(--gp-medium);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gp-muted);
+    }
+    .empty-state i { font-size: 48px; opacity: .3; }
+    .empty-state p { margin-top: 12px; font-size: 14px; }
+
+    /* ── SIDEBAR INFO ────────────────────────────────────────── */
+    .info-box {
+      background: var(--gp-ghost);
+      border: 1.5px solid var(--gp-pale);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+    .info-box-title {
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--gp-medium);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .stat-item {
+      display: flex; justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--gp-pale);
+      font-size: 13px;
+    }
+    .stat-item:last-child { border-bottom: none; }
+    .stat-val { font-weight: 700; color: var(--gp-dark); }
+
+    /* ── SPINNER ─────────────────────────────────────────────── */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── DIVIDER ─────────────────────────────────────────────── */
+    .form-divider {
+      border: none;
+      border-top: 2px solid var(--gp-ghost);
+      margin: 24px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════ -->
+<header class="gp-header">
+  <div class="gp-header-inner">
+    <img src="/logo" alt="Greenplast" class="gp-logo-img">
+    <div>
+      <div class="gp-header-title">GREENPLAST</div>
+      <div class="gp-header-sub">Registro de Mantenciones</div>
+    </div>
+    <div class="gp-header-badge">
+      <a href="/descargar-excel" class="badge-cal ok" style="text-decoration:none;">
+        <i class="bi bi-file-earmark-excel-fill"></i> Descargar Excel
+      </a>
+      <a href="/logout" class="badge-cal err" style="text-decoration:none;">
+        <i class="bi bi-box-arrow-right"></i> Salir
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ══ TOAST CONTAINER ══════════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ══ MAIN ═════════════════════════════════════════════════════ -->
+<div class="gp-main">
+
+  <!-- ── COLUMNA IZQUIERDA: Historial ─────────────────────────── -->
+  <div>
+    <div class="gp-card">
+      <div class="gp-card-header">
+        <i class="bi bi-clock-history"></i>
+        Últimas Mantenciones Registradas
+      </div>
+      <div style="overflow-x:auto;">
+        {% if records %}
+        <table class="historial-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Máquina</th>
+              <th>Tipo</th>
+              <th>Motivo</th>
+              <th>Técnico</th>
+              <th>Hrs</th>
+            </tr>
+          </thead>
+          <tbody id="historial-body">
+            {% for r in records %}
+            <tr>
+              <td style="color:var(--gp-muted);font-weight:600;">{{ r.id }}</td>
+              <td style="white-space:nowrap;">
+                <span style="font-weight:600;">{{ r.fecha }}</span><br>
+                <span style="font-size:11px;color:var(--gp-muted);">{{ r.hora }}</span>
+              </td>
+              <td class="maquina-tag"><i class="bi bi-gear-fill" style="font-size:11px;"></i> {{ r.maquina }}</td>
+              <td>
+                {% if r.programada == 'Sí' %}
+                  <span class="badge-tipo badge-programada">{{ r.tipo }}</span>
+                {% else %}
+                  <span class="badge-tipo badge-noprogramada">⚠️ {{ r.tipo }}</span>
+                {% endif %}
+              </td>
+              <td style="max-width:180px;">{{ r.motivo }}</td>
+              <td>{{ r.tecnico }}</td>
+              <td style="text-align:center;font-weight:700;color:var(--gp-medium);">{{ r.duracion }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-clipboard2-check"></i>
+          <p>Aún no hay mantenciones registradas.<br>¡Usa el formulario para agregar la primera!</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COLUMNA DERECHA: Formulario ──────────────────────────── -->
+  <div>
+    <div class="gp-card">
+      <div class="gp-card-header">
+        <i class="bi bi-plus-circle-fill"></i>
+        Registrar Mantención
+      </div>
+      <div class="gp-card-body">
+        <form id="form-mantencion" novalidate>
+
+          <!-- FECHA Y HORA -->
+          <div class="row g-3 mb-3">
+            <div class="col-7">
+              <label class="form-label"><i class="bi bi-calendar3"></i> Fecha</label>
+              <input type="date" class="form-control" name="fecha" id="fecha"
+                     value="{{ today }}" required>
+            </div>
+            <div class="col-5">
+              <label class="form-label"><i class="bi bi-clock"></i> Hora inicio</label>
+              <input type="time" class="form-control" name="hora" id="hora" value="08:00" required>
+            </div>
+          </div>
+
+          <!-- MÁQUINA -->
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-gear-wide-connected"></i> Máquina</label>
+            <select class="form-select" name="maquina" id="maquina" required>
+              <option value="">— Selecciona la máquina —</option>
+              {% for m in machines %}
+              <option value="{{ m }}">{{ m }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- TIPO DE MANTENCIÓN -->
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-tag-fill"></i> Tipo de Mantención</label>
+            <div class="tipo-grid">
+              <div class="tipo-option">
+                <input type="radio" name="tipo" id="tipo-prog" value="Programada" checked>
+                <label class="tipo-label" for="tipo-prog">
+                  <i class="bi bi-calendar-check text-success"></i>
+                  Programada
+                </label>
+              </div>
+              <div class="tipo-option warn">
+                <input type="radio" name="tipo" id="tipo-noprog" value="No Programada">
+                <label class="tipo-label" for="tipo-noprog">
+                  <i class="bi bi-exclamation-triangle" style="color:var(--gp-warn)"></i>
+                  No Programada
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- MOTIVO -->
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-chat-text-fill"></i> Motivo principal</label>
+            <select class="form-select" name="motivo" id="motivo" required>
+              <option value="">— Selecciona el motivo —</option>
+              {% for r in common_reasons %}
+              <option value="{{ r }}">{{ r }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- DESCRIPCIÓN -->
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-file-text"></i> Descripción / Detalle</label>
+            <textarea class="form-control" name="descripcion" id="descripcion"
+                      rows="3"
+                      placeholder="Describe el trabajo a realizar o la falla detectada..."></textarea>
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- TÉCNICO -->
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-person-fill-gear"></i> Técnico responsable</label>
+            <input type="text" class="form-control" name="tecnico" id="tecnico"
+                   list="tecnico-list"
+                   placeholder="Nombre del técnico o jefe de mantención"
+                   required>
+            <datalist id="tecnico-list">
+              {% for t in technicians %}
+              <option value="{{ t }}">
+              {% endfor %}
+            </datalist>
+          </div>
+
+          <!-- DURACIÓN -->
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-hourglass-split"></i> Duración estimada (horas)</label>
+            <div class="duracion-group">
+              <div class="duracion-btns">
+                <button type="button" class="duracion-btn" onclick="changeDuracion(-0.5)">−</button>
+              </div>
+              <input type="number" class="form-control" name="duracion" id="duracion"
+                     value="1" min="0.5" max="48" step="0.5" required>
+              <div class="duracion-btns">
+                <button type="button" class="duracion-btn" onclick="changeDuracion(0.5)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- OBSERVACIONES OPCIONALES -->
+          <div class="mb-4">
+            <label class="form-label"><i class="bi bi-sticky-fill"></i> Observaciones <span style="font-weight:400;color:var(--gp-muted);">(opcional)</span></label>
+            <textarea class="form-control" name="observaciones" id="observaciones"
+                      rows="2"
+                      placeholder="Materiales necesarios, riesgos, acceso especial..."></textarea>
+          </div>
+
+          <!-- SUBMIT -->
+          <button type="submit" class="btn-agendar" id="btn-submit">
+            <span id="btn-icon"><i class="bi bi-check2-circle"></i></span>
+            <span id="btn-text">Registrar Mantención</span>
+            <div class="spinner" id="btn-spinner"></div>
+          </button>
+
+        </form>
+
+        <!-- INFO BOX -->
+        <div class="info-box mt-3">
+          <div class="info-box-title"><i class="bi bi-info-circle-fill"></i> ¿Qué pasa al registrar?</div>
+          <div class="stat-item">
+            <span><i class="bi bi-file-earmark-excel" style="color:#1B5E20"></i> Planilla Excel</span>
+            <span class="stat-val">Se actualiza automáticamente</span>
+          </div>
+          <div class="stat-item">
+            <span><i class="bi bi-google" style="color:#4285F4"></i> Google Calendar</span>
+            <span class="stat-val">Se agenda automáticamente</span>
+          </div>
+        </div>
+
+      </div><!-- /card-body -->
+    </div><!-- /card -->
+  </div><!-- /col -->
+
+</div><!-- /main -->
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+/* ============================================================
+   GREENPLAST — App JS
+============================================================ */
+
+// Duración ± botones
+function changeDuracion(delta) {
+  const inp = document.getElementById('duracion');
+  let val = parseFloat(inp.value) || 1;
+  val = Math.max(0.5, Math.min(48, val + delta));
+  inp.value = val;
+}
+
+// Toast helper
+function showToast(title, msg, type = 'success') {
+  const icons = { success: '✅', error: '❌' };
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `gp-toast ${type}`;
+  el.innerHTML = `
+    <div class="gp-toast-icon">${icons[type]}</div>
+    <div class="gp-toast-text">
+      <div class="gp-toast-title">${title}</div>
+      <div class="gp-toast-msg">${msg}</div>
+    </div>`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+// Form submit
+document.getElementById('form-mantencion').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const btn     = document.getElementById('btn-submit');
+  const spinner = document.getElementById('btn-spinner');
+  const btnText = document.getElementById('btn-text');
+  const btnIcon = document.getElementById('btn-icon');
+
+  // Validar campos requeridos
+  const maquina = document.getElementById('maquina').value;
+  const motivo  = document.getElementById('motivo').value;
+  const tecnico = document.getElementById('tecnico').value.trim();
+  const fecha   = document.getElementById('fecha').value;
+
+  if (!maquina) { showToast('Campo requerido', 'Selecciona la máquina.', 'error'); return; }
+  if (!motivo)  { showToast('Campo requerido', 'Selecciona el motivo.', 'error'); return; }
+  if (!tecnico) { showToast('Campo requerido', 'Indica el técnico responsable.', 'error'); return; }
+  if (!fecha)   { showToast('Campo requerido', 'Indica la fecha.', 'error'); return; }
+
+  // UI: loading
+  btn.disabled = true;
+  btnIcon.style.display = 'none';
+  btnText.textContent = 'Registrando...';
+  spinner.style.display = 'block';
+
+  try {
+    const formData = new FormData(this);
+    const res = await fetch('/agendar', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (data.ok) {
+      showToast(
+        `Mantención #${data.id} registrada ✅`,
+        'Planilla Excel actualizada. El evento aparecerá en el calendario del equipo automáticamente en los próximos minutos.',
+        'success'
+      );
+      // Recargar historial
+      setTimeout(() => location.reload(), 2500);
+    } else {
+      showToast('Error al registrar', data.error || 'Intenta nuevamente.', 'error');
+    }
+  } catch (err) {
+    showToast('Error de conexión', 'No se pudo conectar con el servidor.', 'error');
+  } finally {
+    btn.disabled = false;
+    btnIcon.style.display = 'inline';
+    btnText.textContent = 'Registrar Mantención';
+    spinner.style.display = 'none';
+  }
+});
+</script>
+
+</body>
+</html>
