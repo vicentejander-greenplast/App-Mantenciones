@@ -43,7 +43,6 @@ MAINTENANCE_TYPES = [
 # Motivos frecuentes (sugerencias rápidas)
 COMMON_REASONS = [
     "Cambio de cuchillas / piezas de desgaste",
-    "Cambio de Cuchillos",
     "Cambio de aceite y lubricación",
     "Revisión y ajuste de correas",
     "Limpieza general de componentes",
