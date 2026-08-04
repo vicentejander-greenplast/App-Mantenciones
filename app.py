@@ -8,8 +8,9 @@ from datetime import datetime
 from functools import wraps
 
 from flask import (Flask, render_template, request, jsonify,
-                   send_file, session, redirect, url_for, Response)
+                   send_file, session, redirect, url_for)
 import io
+import requests as http_requests
 
 from config import (MACHINES, TECHNICIANS, MAINTENANCE_TYPES,
                     COMMON_REASONS, APP_PORT, SECRET_KEY)
@@ -25,8 +26,27 @@ APP_PASSWORD = os.environ.get("APP_PASSWORD", "greenplast2024")
 # Clave secreta para la API del calendario (usada por el scheduled task de Cowork)
 API_SECRET   = os.environ.get("API_SECRET", "gp-cal-sync-2024")
 
+# URL del Google Apps Script (se configura en Railway → Variables)
+APPS_SCRIPT_URL = os.environ.get("APPS_SCRIPT_URL", "")
+
 # Inicializar base de datos al arrancar
 init_db()
+
+
+def send_to_calendar(data: dict, record_id: int) -> bool:
+    """Llama al Google Apps Script para crear el evento inmediatamente."""
+    if not APPS_SCRIPT_URL:
+        return False
+    try:
+        payload = {**data, "secret": API_SECRET}
+        resp = http_requests.post(APPS_SCRIPT_URL, json=payload, timeout=15)
+        result = resp.json()
+        if result.get("ok"):
+            mark_calendar_done(record_id)
+            return True
+    except Exception as e:
+        print(f"[Calendar] Error: {e}")
+    return False
 
 
 # ── Decorador de login ───────────────────────────────────────
@@ -57,16 +77,6 @@ def logout():
     return redirect(url_for("login"))
 
 
-# ── LOGO ─────────────────────────────────────────────────────
-@app.route("/logo")
-def serve_logo():
-    # En local, sirve desde la carpeta del proyecto
-    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "..", "logo-c-green-plast-1.png")
-    if os.path.exists(logo_path):
-        return send_file(logo_path, mimetype="image/png")
-    # En cloud, retorna vacío (el CSS tiene fallback de texto)
-    return Response(status=204)
 
 
 # ── PÁGINA PRINCIPAL ─────────────────────────────────────────
@@ -114,11 +124,12 @@ def agendar():
             return jsonify({"ok": False, "error": "Indica la fecha."}), 400
 
         record_id = insert_maintenance(data)
+        send_to_calendar(data, record_id)
 
         return jsonify({
             "ok":      True,
             "id":      record_id,
-            "message": f"Mantención #{record_id} registrada. El evento aparecerá en el calendario del equipo en minutos.",
+            "message": f"Mantención #{record_id} registrada exitosamente.",
         })
 
     except Exception as e:
