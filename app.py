@@ -8,7 +8,7 @@ from datetime import datetime
 from functools import wraps
 
 from flask import (Flask, render_template, request, jsonify,
-                   send_file, session, redirect, url_for, Response)
+                   send_file, session, redirect, url_for)
 import io
 
 from config import (MACHINES, TECHNICIANS, MAINTENANCE_TYPES,
@@ -57,16 +57,6 @@ def logout():
     return redirect(url_for("login"))
 
 
-# ── LOGO ─────────────────────────────────────────────────────
-@app.route("/logo")
-def serve_logo():
-    # En local, sirve desde la carpeta del proyecto
-    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "..", "logo-c-green-plast-1.png")
-    if os.path.exists(logo_path):
-        return send_file(logo_path, mimetype="image/png")
-    # En cloud, retorna vacío (el CSS tiene fallback de texto)
-    return Response(status=204)
 
 
 # ── PÁGINA PRINCIPAL ─────────────────────────────────────────
